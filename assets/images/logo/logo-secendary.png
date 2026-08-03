@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="190" height="54" viewBox="0 0 190 54" role="img" aria-label="Yathish C Y">
+  <g fill="none" stroke="#ff5a1f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 10l10 13 10-13M20 23v20"/>
+    <path d="M40 12c-9 0-14 7-14 15s5 15 14 15"/>
+    <path d="M48 10l10 13 10-13M58 23v20"/>
+  </g>
+  <text x="78" y="25" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="800" letter-spacing=".7">YATHISH</text>
+  <text x="78" y="43" fill="#ff5a1f" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="800" letter-spacing="2.4">C Y</text>
+</svg>

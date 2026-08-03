@@ -1,1 +1,0 @@
-for(const weight of ["regular","thin","light","bold","fill","duotone"]){const link=document.createElement("link");link.rel="stylesheet";link.href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/"+weight+"/style.css";document.head.appendChild(link)}

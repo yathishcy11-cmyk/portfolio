@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Project Admin | Yathish C Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Phudu:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#02090f;--paper:#f4f2ee;--orange:#ff5101;--muted:#687078;--red:#c5332a;--green:#237a43}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Instrument Sans",sans-serif}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}a{color:inherit;text-decoration:none}header{padding:22px 0;border-bottom:1px solid rgba(0,0,0,.12)}nav{display:flex;justify-content:space-between;align-items:center}.brand{font:700 25px "Phudu",sans-serif}.back{border:1px solid rgba(0,0,0,.16);border-radius:999px;padding:10px 15px;font-weight:700;text-transform:uppercase;font-size:12px}.shell{padding:70px 0}.panel{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:24px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.07);max-width:720px;margin:auto}.panel.wide{max-width:100%}h1,h2{font-family:"Phudu",sans-serif;margin:0}h1{font-size:clamp(42px,7vw,80px);line-height:.9;margin-bottom:15px}h2{font-size:34px;margin-bottom:18px}.lead{color:var(--muted);line-height:1.6;margin:0 0 30px}.field{display:grid;gap:8px;margin-bottom:17px}label{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em}input,textarea{width:100%;border:1px solid rgba(0,0,0,.16);border-radius:12px;padding:14px 15px;font:inherit;background:#fff;outline:none}textarea{min-height:110px;resize:vertical}input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,81,1,.12)}button{border:0;border-radius:12px;padding:14px 18px;background:var(--ink);color:#fff;font:700 14px inherit;text-transform:uppercase;cursor:pointer}button:hover{background:var(--orange)}button:disabled{opacity:.55;cursor:not-allowed}button.danger{background:var(--red)}.msg{margin-top:16px;line-height:1.5;color:var(--muted)}.error{color:var(--red)}.success{color:var(--green)}.topline{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:28px}.signed{font-size:13px;color:var(--muted)}#dashboard{display:none}.projects{display:grid;gap:12px;margin-top:25px}.project-row{border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:16px;display:flex;justify-content:space-between;gap:18px;align-items:center}.project-row strong{display:block;margin-bottom:5px}.project-row a{font-size:13px;color:var(--muted);word-break:break-all}.smallbtn{padding:9px 12px;font-size:11px}.optional{font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}@media(max-width:650px){.panel{padding:24px}.topline,.project-row{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><nav><a class="brand" href="index.html">YATHISH C Y</a><a class="back" href="projects.html">← Projects</a></nav></div></header>
+<main class="shell"><div class="wrap">
+<section class="panel" id="loginPanel">
+  <h1>PROJECT<br>ADMIN.</h1>
+  <p class="lead">Sign in with an approved Supabase email and password to add or remove projects. There is no sign-up form on this page.</p>
+  <form id="loginForm">
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button id="loginBtn" type="submit">Sign in</button>
+    <div class="msg" id="loginMsg"></div>
+  </form>
+</section>
+
+<section class="panel wide" id="dashboard">
+  <div class="topline">
+    <div><h2>Manage projects</h2><div class="signed" id="signedUser"></div></div>
+    <button id="logoutBtn">Sign out</button>
+  </div>
+
+  <form id="projectForm">
+    <div class="field"><label for="title">Project name</label><input id="title" required placeholder="Example: New Client Website"></div>
+    <div class="field"><label for="projectUrl">Live website URL</label><input id="projectUrl" type="url" required placeholder="https://example.com/"></div>
+    <div class="field"><label for="description">Description</label><textarea id="description" required placeholder="Short description of the project"></textarea></div>
+    <div class="field"><label for="imageUrl">Preview image URL <span class="optional">(optional — leave blank to use live preview)</span></label><input id="imageUrl" type="url" placeholder="https://example.com/project-preview.jpg"></div>
+    <div class="field"><label for="category">Category <span class="optional">(optional)</span></label><input id="category" placeholder="Business Website"></div>
+    <button id="addBtn" type="submit">Add project</button>
+    <div class="msg" id="projectMsg"></div>
+  </form>
+
+  <div class="projects" id="projectList"></div>
+</section>
+</div></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function () {
+  const cfg = window.PORTFOLIO_SUPABASE || {};
+  const loginPanel = document.getElementById('loginPanel');
+  const dashboard = document.getElementById('dashboard');
+  const loginMsg = document.getElementById('loginMsg');
+  const projectMsg = document.getElementById('projectMsg');
+  const loginBtn = document.getElementById('loginBtn');
+  const addBtn = document.getElementById('addBtn');
+
+  if (!cfg.url || !cfg.publishableKey || !window.supabase) {
+    loginMsg.textContent = 'Supabase configuration is missing.';
+    loginMsg.className = 'msg error';
+    loginBtn.disabled = true;
+    return;
+  }
+
+  const client = window.supabase.createClient(cfg.url, cfg.publishableKey);
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginBtn.disabled = true;
+    loginMsg.textContent = 'Signing in…';
+    loginMsg.className = 'msg';
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const { error } = await client.auth.signInWithPassword({ email, password });
+
+    loginBtn.disabled = false;
+    if (error) {
+      console.error(error);
+      loginMsg.textContent = 'Login failed. Check the email and password.';
+      loginMsg.className = 'msg error';
+    } else {
+      loginMsg.textContent = '';
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await client.auth.signOut();
+  });
+
+  document.getElementById('projectForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    addBtn.disabled = true;
+    projectMsg.textContent = 'Adding project…';
+    projectMsg.className = 'msg';
+
+    try {
+      const project_url = checkedHttpUrl(document.getElementById('projectUrl').value.trim(), true);
+      const rawImage = document.getElementById('imageUrl').value.trim();
+      const image_url = rawImage ? checkedHttpUrl(rawImage, true) : null;
+
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        project_url,
+        image_url,
+        category: document.getElementById('category').value.trim() || null
+      };
+
+      const { error } = await client.from('projects').insert(payload);
+      if (error) throw error;
+
+      e.target.reset();
+      projectMsg.textContent = 'Project added successfully.';
+      projectMsg.className = 'msg success';
+      await loadProjects();
+    } catch (err) {
+      console.error(err);
+      projectMsg.textContent = 'Could not add project. Check the fields and Supabase permissions.';
+      projectMsg.className = 'msg error';
+    } finally {
+      addBtn.disabled = false;
+    }
+  });
+
+  async function loadProjects() {
+    const list = document.getElementById('projectList');
+    list.innerHTML = '<div class="msg">Loading projects…</div>';
+
+    const { data, error } = await client
+      .from('projects')
+      .select('id,title,project_url,category,created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error(error);
+      list.innerHTML = '<div class="msg error">Could not load projects.</div>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div class="msg">No admin-added projects yet. Dreams Photography and KarNet remain built into the public page.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    for (const p of data) {
+      const row = document.createElement('div');
+      row.className = 'project-row';
+      row.innerHTML = `<div><strong>${esc(p.title || 'Untitled')}</strong><a href="${esc(safeUrl(p.project_url))}" target="_blank" rel="noopener">${esc(p.project_url || '')}</a>${p.category ? `<div class="signed">${esc(p.category)}</div>` : ''}</div><button class="danger smallbtn" type="button">Delete</button>`;
+      row.querySelector('button').addEventListener('click', async () => {
+        if (!confirm(`Delete "${p.title || 'this project'}"?`)) return;
+        const { error } = await client.from('projects').delete().eq('id', p.id);
+        if (error) {
+          alert('Could not delete the project.');
+          console.error(error);
+          return;
+        }
+        await loadProjects();
+      });
+      list.appendChild(row);
+    }
+  }
+
+  async function applySession(session) {
+    const user = session?.user;
+    if (user) {
+      loginPanel.style.display = 'none';
+      dashboard.style.display = 'block';
+      document.getElementById('signedUser').textContent = `Signed in as ${user.email || 'approved user'}`;
+      await loadProjects();
+    } else {
+      dashboard.style.display = 'none';
+      loginPanel.style.display = 'block';
+      document.getElementById('password').value = '';
+    }
+  }
+
+  client.auth.getSession().then(({ data }) => applySession(data.session));
+  client.auth.onAuthStateChange((_event, session) => applySession(session));
+
+  function checkedHttpUrl(value, required=false) {
+    if (!value && !required) return null;
+    const u = new URL(value);
+    if (!/^https?:$/.test(u.protocol)) throw new Error('Only http/https URLs are allowed');
+    return u.href;
+  }
+  function esc(v='') {
+    return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+  function safeUrl(v='') {
+    try { const u = new URL(v); return /^https?:$/.test(u.protocol) ? u.href : '#'; } catch { return '#'; }
+  }
+})();
+</script>
+</body>
+</html>

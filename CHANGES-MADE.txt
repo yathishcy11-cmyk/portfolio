@@ -1,0 +1,15 @@
+CHANGES MADE
+
+1. Fixed the dark Engineering Profile overlap/glitch.
+   Cause: the added section was outside the original GSAP smooth-content page wrapper.
+   Fix: moved it into the normal page flow immediately before the original footer/contact section.
+
+2. Added stronger CSS isolation to the Engineering Profile section so content from neighboring sections cannot bleed through it.
+
+3. Moved Ctrl/Command + K beside the Recruiter Mode button. They now share one fixed horizontal control.
+
+4. Recruiter Mode shortcut still works: Ctrl+K on Windows/Linux and Command+K on macOS. Escape closes it.
+
+5. Preserved the existing portfolio design, project page, Supabase admin, project editing, image drag/drop, and project-images bucket configuration.
+
+6. Kept all original assets.

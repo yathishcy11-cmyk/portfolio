@@ -1,0 +1,12 @@
+UPLOAD EVERYTHING IN THIS FOLDER TO THE ROOT OF YOUR NEW GITHUB REPOSITORY.
+
+Keep the assets folder exactly as provided.
+GitHub Pages: Settings > Pages > Deploy from a branch > main > /(root).
+
+Main files:
+index.html
+projects.html
+project-admin.html
+supabase-config.js
+case-study-template.html
+assets/

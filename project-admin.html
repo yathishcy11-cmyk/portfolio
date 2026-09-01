@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Project Admin | Yathish C Y</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Phudu:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#02090f;--paper:#f4f2ee;--orange:#ff5101;--muted:#687078;--red:#c5332a;--green:#237a43}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Instrument Sans",sans-serif}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}a{color:inherit;text-decoration:none}header{padding:22px 0;border-bottom:1px solid rgba(0,0,0,.12)}nav{display:flex;justify-content:space-between;align-items:center}.brand{font:700 25px "Phudu",sans-serif}.back{border:1px solid rgba(0,0,0,.16);border-radius:999px;padding:10px 15px;font-weight:700;text-transform:uppercase;font-size:12px}.shell{padding:70px 0}.panel{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:24px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.07);max-width:720px;margin:auto}.panel.wide{max-width:100%}h1,h2{font-family:"Phudu",sans-serif;margin:0}h1{font-size:clamp(42px,7vw,80px);line-height:.9;margin-bottom:15px}h2{font-size:34px;margin-bottom:18px}.lead{color:var(--muted);line-height:1.6;margin:0 0 30px}.field{display:grid;gap:8px;margin-bottom:17px}label{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em}input,textarea{width:100%;border:1px solid rgba(0,0,0,.16);border-radius:12px;padding:14px 15px;font:inherit;background:#fff;outline:none}textarea{min-height:110px;resize:vertical}input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,81,1,.12)}button{border:0;border-radius:12px;padding:14px 18px;background:var(--ink);color:#fff;font:700 14px inherit;text-transform:uppercase;cursor:pointer}button:hover{background:var(--orange)}button:disabled{opacity:.55;cursor:not-allowed}button.danger{background:var(--red)}.msg{margin-top:16px;line-height:1.5;color:var(--muted)}.error{color:var(--red)}.success{color:var(--green)}.topline{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:28px}.signed{font-size:13px;color:var(--muted)}#dashboard{display:none}.projects{display:grid;gap:12px;margin-top:25px}.project-row{border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:16px;display:flex;justify-content:space-between;gap:18px;align-items:center}.project-row strong{display:block;margin-bottom:5px}.project-row a{font-size:13px;color:var(--muted);word-break:break-all}.actions{display:flex;gap:8px;flex-wrap:wrap}.smallbtn{padding:9px 12px;font-size:11px}.secondary{background:#ece9e3!important;color:var(--ink)!important}.optional{font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}.dropzone{border:2px dashed rgba(2,9,15,.2);border-radius:16px;padding:22px;text-align:center;background:#faf9f7;cursor:pointer;transition:.2s}.dropzone.dragover{border-color:var(--orange);background:#fff4ed}.dropzone input{display:none}.dropzone strong{display:block;margin-bottom:5px}.dropzone span{color:var(--muted);font-size:13px}.preview-box{margin-top:12px;display:none}.preview-box img{width:100%;max-height:280px;object-fit:cover;border-radius:12px}.form-actions{display:flex;gap:10px;flex-wrap:wrap}.editing-banner{display:none;background:#fff5ec;border:1px solid #ffd3bd;color:#7a3215;border-radius:12px;padding:12px 14px;margin-bottom:18px}@media(max-width:650px){.panel{padding:24px}.topline,.project-row{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><nav><a class="brand" href="index.html">YATHISH C Y</a><a class="back" href="projects.html">← Projects</a></nav></div></header>
+<main class="shell"><div class="wrap">
+<section class="panel" id="loginPanel">
+  <h1>PROJECT<br>ADMIN.</h1>
+  <p class="lead">Sign in with an approved Supabase email and password to add or remove projects. There is no sign-up form on this page.</p>
+  <form id="loginForm">
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button id="loginBtn" type="submit">Sign in</button>
+    <div class="msg" id="loginMsg"></div>
+  </form>
+</section>
+
+<section class="panel wide" id="dashboard">
+  <div class="topline">
+    <div><h2>Manage projects</h2><div class="signed" id="signedUser"></div></div>
+    <button id="logoutBtn">Sign out</button>
+  </div>
+
+  <div class="editing-banner" id="editingBanner">Editing project. Save changes or cancel to return to add mode.</div>
+  <form id="projectForm">
+    <input type="hidden" id="editingId">
+    <input type="hidden" id="existingImageUrl">
+    <div class="field"><label for="title">Project name</label><input id="title" required placeholder="Example: New Client Website"></div>
+    <div class="field"><label for="projectUrl">Live website URL</label><input id="projectUrl" type="url" required placeholder="https://example.com/"></div>
+    <div class="field"><label for="description">Description</label><textarea id="description" required placeholder="Short description of the project"></textarea></div>
+    <div class="field"><label>Project preview image <span class="optional">(drag & drop or click)</span></label>
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose project preview image">
+        <input id="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <strong>Drop an image here</strong><span>or click to choose JPG, PNG, WEBP or GIF — max 10 MB</span>
+      </div>
+      <div class="preview-box" id="previewBox"><img id="previewImg" alt="Selected project preview"></div>
+    </div>
+    <div class="field"><label for="category">Category <span class="optional">(optional)</span></label><input id="category" placeholder="Business Website"></div>
+    <div class="form-actions"><button id="addBtn" type="submit">Add project</button><button id="cancelEditBtn" type="button" class="secondary" style="display:none">Cancel edit</button></div>
+    <div class="msg" id="projectMsg"></div>
+  </form>
+
+  <div class="projects" id="projectList"></div>
+</section>
+</div></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function () {
+  const cfg = window.PORTFOLIO_SUPABASE || {};
+  const loginPanel = document.getElementById('loginPanel');
+  const dashboard = document.getElementById('dashboard');
+  const loginMsg = document.getElementById('loginMsg');
+  const projectMsg = document.getElementById('projectMsg');
+  const loginBtn = document.getElementById('loginBtn');
+  const addBtn = document.getElementById('addBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const editingBanner = document.getElementById('editingBanner');
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('imageFile');
+  const previewBox = document.getElementById('previewBox');
+  const previewImg = document.getElementById('previewImg');
+  let selectedFile = null;
+
+  if (!cfg.url || !cfg.publishableKey || !window.supabase) {
+    loginMsg.textContent = 'Supabase configuration is missing.';
+    loginMsg.className = 'msg error'; loginBtn.disabled = true; return;
+  }
+  const client = window.supabase.createClient(cfg.url, cfg.publishableKey);
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); loginBtn.disabled = true; loginMsg.textContent = 'Signing in…'; loginMsg.className = 'msg';
+    const { error } = await client.auth.signInWithPassword({ email: document.getElementById('email').value.trim(), password: document.getElementById('password').value });
+    loginBtn.disabled = false;
+    if (error) { console.error(error); loginMsg.textContent = 'Login failed. Check the email and password.'; loginMsg.className = 'msg error'; } else loginMsg.textContent = '';
+  });
+  document.getElementById('logoutBtn').addEventListener('click', async () => client.auth.signOut());
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  ['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
+  dropzone.addEventListener('drop', e => handleFile(e.dataTransfer.files && e.dataTransfer.files[0]));
+  fileInput.addEventListener('change', () => handleFile(fileInput.files && fileInput.files[0]));
+
+  function handleFile(file) {
+    if (!file) return;
+    if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return setMsg('Use JPG, PNG, WEBP or GIF only.', 'error');
+    if (file.size > 10 * 1024 * 1024) return setMsg('Image must be 10 MB or smaller.', 'error');
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => { previewImg.src = reader.result; previewBox.style.display = 'block'; };
+    reader.readAsDataURL(file); setMsg('Selected: ' + file.name, '');
+  }
+
+  document.getElementById('projectForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); addBtn.disabled = true;
+    const editingId = document.getElementById('editingId').value;
+    setMsg(editingId ? 'Saving changes…' : 'Adding project…', '');
+    try {
+      const project_url = checkedHttpUrl(document.getElementById('projectUrl').value.trim(), true);
+      let image_url = document.getElementById('existingImageUrl').value || null;
+      if (selectedFile) image_url = await uploadPreview(selectedFile, editingId || crypto.randomUUID());
+      const payload = { title: document.getElementById('title').value.trim(), description: document.getElementById('description').value.trim(), project_url, image_url, category: document.getElementById('category').value.trim() || null };
+      const result = editingId ? await client.from('projects').update(payload).eq('id', editingId) : await client.from('projects').insert(payload);
+      if (result.error) throw result.error;
+      setMsg(editingId ? 'Project updated successfully.' : 'Project added successfully.', 'success'); resetForm(); await loadProjects();
+    } catch (err) { console.error(err); setMsg('Could not save: ' + (err?.message || 'Unknown error'), 'error'); }
+    finally { addBtn.disabled = false; }
+  });
+
+  cancelEditBtn.addEventListener('click', () => { resetForm(); setMsg('Edit cancelled.', ''); });
+
+  async function uploadPreview(file, key) {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = key + '/' + Date.now() + '.' + ext;
+    const { error } = await client.storage.from('project-images').upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+    if (error) throw error;
+    return client.storage.from('project-images').getPublicUrl(path).data.publicUrl;
+  }
+
+  async function loadProjects() {
+    const list = document.getElementById('projectList'); list.innerHTML = '<div class="msg">Loading projects…</div>';
+    const { data, error } = await client.from('projects').select('id,title,description,project_url,image_url,category,created_at').order('created_at', { ascending: false });
+    if (error) { console.error(error); list.innerHTML = '<div class="msg error">Could not load projects.</div>'; return; }
+    if (!data || data.length === 0) { list.innerHTML = '<div class="msg">No admin-added projects yet.</div>'; return; }
+    list.innerHTML = '';
+    for (const p of data) {
+      const row = document.createElement('div'); row.className = 'project-row';
+      row.innerHTML = `<div><strong>${esc(p.title || 'Untitled')}</strong><a href="${esc(safeUrl(p.project_url))}" target="_blank" rel="noopener">${esc(p.project_url || '')}</a>${p.category ? `<div class="signed">${esc(p.category)}</div>` : ''}</div><div class="actions"><button class="secondary smallbtn edit-btn" type="button">Edit</button><button class="danger smallbtn delete-btn" type="button">Delete</button></div>`;
+      row.querySelector('.edit-btn').addEventListener('click', () => startEdit(p));
+      row.querySelector('.delete-btn').addEventListener('click', async () => { if (!confirm(`Delete "${p.title || 'this project'}"?`)) return; const { error } = await client.from('projects').delete().eq('id', p.id); if (error) { alert('Could not delete the project.'); return; } await loadProjects(); });
+      list.appendChild(row);
+    }
+  }
+
+  function startEdit(p) {
+    document.getElementById('editingId').value = p.id; document.getElementById('existingImageUrl').value = p.image_url || '';
+    document.getElementById('title').value = p.title || ''; document.getElementById('projectUrl').value = p.project_url || ''; document.getElementById('description').value = p.description || ''; document.getElementById('category').value = p.category || '';
+    selectedFile = null; fileInput.value = '';
+    if (p.image_url) { previewImg.src = p.image_url; previewBox.style.display = 'block'; } else { previewBox.style.display = 'none'; previewImg.removeAttribute('src'); }
+    addBtn.textContent = 'Save changes'; cancelEditBtn.style.display = 'inline-block'; editingBanner.style.display = 'block'; document.getElementById('projectForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function resetForm() {
+    document.getElementById('projectForm').reset(); document.getElementById('editingId').value = ''; document.getElementById('existingImageUrl').value = ''; selectedFile = null; previewBox.style.display = 'none'; previewImg.removeAttribute('src'); addBtn.textContent = 'Add project'; cancelEditBtn.style.display = 'none'; editingBanner.style.display = 'none';
+  }
+  async function applySession(session) {
+    const user = session && session.user;
+    if (user) { loginPanel.style.display = 'none'; dashboard.style.display = 'block'; document.getElementById('signedUser').textContent = `Signed in as ${user.email || 'approved user'}`; await loadProjects(); }
+    else { dashboard.style.display = 'none'; loginPanel.style.display = 'block'; document.getElementById('password').value = ''; resetForm(); }
+  }
+  client.auth.getSession().then(({ data }) => applySession(data.session));
+  client.auth.onAuthStateChange((_event, session) => applySession(session));
+  function setMsg(text,type){ projectMsg.textContent=text; projectMsg.className='msg'+(type?' '+type:''); }
+  function checkedHttpUrl(value,required=false){ if(!value&&!required)return null; const u=new URL(value); if(!/^https?:$/.test(u.protocol)) throw new Error('Only http/https URLs allowed'); return u.href; }
+  function esc(v=''){ return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function safeUrl(v=''){ try{ const u=new URL(v); return /^https?:$/.test(u.protocol)?u.href:'#'; }catch{return '#';} }
+})();
+</script>
+</body>
+</html>

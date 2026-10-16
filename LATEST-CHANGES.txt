@@ -1,0 +1,14 @@
+LATEST CHANGES
+
+1. Fixed the slight header glitch/jump while scrolling.
+   - The template changed the header from position: relative to sticky only after 260px.
+   - The header is now sticky from the start, so there is no layout-mode switch while scrolling.
+   - Removed the slide-down animation on the sticky transition.
+   - Added GPU/backface stabilization to the header/social blocks.
+
+2. Replaced the fourth desktop header social block.
+   OLD: Dribbble icon / empty link
+   NEW: GitHub icon
+   Link: https://github.com/yathishcy11-cmyk
+
+3. All previous portfolio features, assets, Recruiter Mode, Supabase admin and projects are preserved.
